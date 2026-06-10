@@ -1,0 +1,70 @@
+<div class="space-y-6">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-extrabold tracking-tight">Jadwal Ruangan Real-time</h1>
+            <p class="text-muted-foreground mt-1">Status ketersediaan ruangan saat ini</p>
+        </div>
+        <div class="text-right">
+            <div id="live-clock" class="text-4xl font-mono font-bold tracking-tighter text-primary">00:00:00</div>
+            <div id="live-date" class="text-sm text-muted-foreground font-medium uppercase">Loading...</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% if (rooms && rooms.length> 0) { %>
+            <% rooms.forEach(room=> { %>
+                <div
+                    class="relative overflow-hidden rounded-2xl border bg-card p-6 shadow-sm transition-all <%= room.is_booked > 0 ? 'border-red-200 bg-red-50/50' : 'border-green-200 bg-green-50/50' %>">
+
+                    <div class="flex justify-between items-start mb-4">
+                        <h5 class="text-xl font-bold">
+                            <%= room.name %>
+                        </h5>
+                        <span
+                            class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider <%= room.is_booked > 0 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' %>">
+                            <%= room.is_booked> 0 ? 'Terpakai' : 'Tersedia' %>
+                        </span>
+                    </div>
+
+                    <% if (room.is_booked> 0) { %>
+                        <div class="space-y-3 mt-4">
+                            <div class="flex items-center gap-2 text-sm">
+                                <span class="text-gray-500">👤 Peminjam:</span>
+                                <span class="font-semibold text-gray-900">
+                                    <%= room.current_borrower || 'User' %>
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2 text-sm">
+                                <span class="text-gray-500">⌛ Selesai:</span>
+                                <span class="font-mono font-medium text-gray-900">
+                                    <%= room.end_time ? new Date(room.end_time).toLocaleTimeString('id-ID',
+                                        {hour: '2-digit' , minute:'2-digit'}) : '-' %>
+                                </span>
+                            </div>
+                        </div>
+                        <% } else { %>
+                            <p class="text-sm text-green-700 font-medium mt-4">Ruangan siap untuk dipesan.</p>
+                            <a href="/bookings/add"
+                                class="mt-4 block text-center py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition">
+                                Booking Sekarang
+                            </a>
+                            <% } %>
+                </div>
+                <% }) %>
+                    <% } else { %>
+                        <p class="text-center col-span-full py-10 text-muted-foreground">Tidak ada ruangan yang
+                            ditemukan.</p>
+                        <% } %>
+    </div>
+</div>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('live-clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+        document.getElementById('live-date').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+    setTimeout(() => { location.reload(); }, 30000);
+</script>
